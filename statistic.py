@@ -10,7 +10,23 @@ from jinja2 import Environment, FileSystemLoader, Template
 import pdfkit
 
 class InputConect:
+    """
+        Класс принимает список вакансий и приобразует их в статистику
+        Attributes
+        ----------
+        data(list) : Список вакансий
+        profession_name(str) : Названия вакансий
+        vacancies_by_city(dict) : Доля вакансий по городам
+        vacancies_amount(int) : Количество вакансий
+    """
     def __init__(self, data: list, profession_name: str):
+        """
+            Метод инициализирует список вакансий, названия вакансий,
+            долю вакансий по городам, количество вакансий
+            Arg:
+                data(list) : Список вакансий
+                profession_name(str) : Названия вакансий
+        """
         self.__data = data
         self.__profession_name = profession_name
         self.__vacancies_by_city = {}
@@ -33,6 +49,9 @@ class InputConect:
         self.__profession_name = profession_name
 
     def get_vacancies_by_city(self):
+        """
+            Метод образует долю вакансий по городам
+        """
         vbc = {} #vacancies_by_city
         for i in self.__vacancies_by_city.keys():
             if self.__vacancies_by_city[i] >= floor(self.__vacancies_amount / 100):
@@ -41,6 +60,9 @@ class InputConect:
         return dict(zip(list(vbc.keys())[:10], list(vbc.values())[:10]))
 
     def get_vacancies_by_year_for_profession(self):
+        """
+            Метод образует динамику количества для вакансии по году
+        """
         sbyfp = {} #salary_by_year_for_profession
         for i in self.data:
             if self.profession_name in i.name:
@@ -50,6 +72,9 @@ class InputConect:
         return dict(sorted(sbyfp.items(), key=lambda item: item[0]))
 
     def get_vacancies_by_year(self):
+        """
+            Метод образует динамику количества вакансий по году
+        """
         vby = {}  # vacancies_by_year
         for i in self.data:
             if i.published_at in vby.keys(): vby[i.published_at] += 1
@@ -60,6 +85,9 @@ class InputConect:
         return dict(sorted(vby.items(), key=lambda item: item[0]))
 
     def get_salary_by_year(self):
+        """
+            Метод образует динамику зарплат вакансий по году
+        """
         sby = {}
         sam = {}  # salary_by_year, salary_amount
         for i in self.data:
@@ -73,6 +101,9 @@ class InputConect:
         return dict(sorted(sby.items(), key=lambda item: item[0]))
 
     def get_salary_by_year_for_profession(self):
+        """
+            Метод образует динамику зарплаты для вакансии по году
+        """
         sbyfp = {} #salary_by_year_for_profession
         sa = {} #salary_amount
         for i in self.data:
@@ -88,6 +119,9 @@ class InputConect:
         return dict(sorted(sbyfp.items(), key=lambda item: item[0]))
 
     def get_salary_by_city(self):
+        """
+            Метод образует уровень зарплат по городам
+        """
         sbc = {} #salary_by_city
         sa = {} #salary_amount
         for i in self.data:
@@ -102,13 +136,23 @@ class InputConect:
         sbc = dict(sorted(sbc.items(), key=lambda item: item[1], reverse=True))
         return dict(zip(list(sbc.keys())[:10], list(sbc.values())[:10]))
 
-
+"""
+    currency_to_rub(dict) : Список перевода валют в рубли
+"""
 currency_to_rub = {
     "AZN": 35.68, "BYR": 23.91, "EUR": 59.90, "GEL": 21.74, "UZS": 0.0055,
     "KGS": 0.76, "KZT": 0.13, "RUR": 1, "UAH": 1.64, "USD": 60.66
 }
 
 class DataSet:
+    """
+        Класс читает csv и заполняет список вакансий
+        Attributes
+        ----------
+        file(str) : Имя файла
+        data(list) : Список вакансий после парсинга csv-файла
+        vacancies_objects(list) : Список вакансий после полной инициализации переменной data
+    """
     def __init__(self, file: str):
         self.__file = file
         self.__data = self.universal_csv_parser()
@@ -139,6 +183,7 @@ class DataSet:
         self.__vacancies_objects = vacancies_objects
 
     def universal_csv_parser(self) -> list:
+
         with open(self.file, "r", encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             array1 = []
@@ -155,9 +200,36 @@ class DataSet:
         return array2
 
 class Report:
+    """
+        Класс для генерации файлов статистики
+        Attributes
+        ----------
+        salary_by_year(dict) : Динамика зарплат вакансий по году
+        vacancies_by_year(dict) : Динамика количества вакансий по году
+        salary_by_year_for_profession(dict) : Динамика зарплаты для вакансии по году
+        vacancies_by_year_for_profession(dict) : Динамика количества для вакансии по году
+        salary_by_city(dict) : Уровень зарплат по городам
+        vacancies_by_city(dict) : Доля вакансий по городам
+        profession_name(dict) : Название профессии
+    """
+
     def __init__(self, salary_by_year: dict, vacancies_by_year: dict, salary_by_year_for_profession: dict,
                  vacancies_by_year_for_profession: dict, salary_by_city: dict, vacancies_by_city: dict,
                  profession_name: str):
+        """
+            Инициализирует динамику зарплат вакансий по году, динамику количества вакансий по году,
+            динамику зарплаты для вакансии по году, динамику количества для вакансии по году,
+            уровень зарплат по городам, долю вакансий по городам, названия профессий
+
+            Arg:
+                salary_by_year(dict) : Динамика зарплат вакансий по году
+                vacancies_by_year(dict) : Динамика количества вакансий по году
+                salary_by_year_for_profession(dict) : Динамика зарплаты для вакансии по году
+                vacancies_by_year_for_profession(dict) : Динамика количества для вакансии по году
+                salary_by_city(dict) : Уровень зарплат по городам
+                vacancies_by_city(dict) : Доля вакансий по городам
+                profession_name(dict) : Название профессии
+        """
         self.__salary_by_year = salary_by_year
         self.__vacancies_by_year = vacancies_by_year
         self.__salary_by_year_for_profession = salary_by_year_for_profession
@@ -194,6 +266,9 @@ class Report:
         self.__table3 = table3
 
     def generate_excel(self):
+        """
+            Метод возращает файл с стастатистикой в excel
+        """
         excel_file = openpyxl.Workbook()
         excel_file.remove(excel_file["Sheet"])
         excel_file.create_sheet("Статистика по годам")
@@ -263,6 +338,9 @@ class Report:
             self.__table3.append(row2)
 
     def generate_image(self):
+        """
+            Метод возращает изображение с стастатистикой в png
+        """
         figure, ax = plt.subplots(2, 2)
         width = 0.35
         # 1 график
@@ -317,6 +395,9 @@ class Report:
         plt.savefig('graph.png', dpi=300)
 
     def generate_pdf(self):
+        """
+            Метод возращает файл с стастатистикой в pdf
+        """
         env = Environment(loader=FileSystemLoader("."))
         template = env.get_template("pdf_template.html")
 
@@ -342,7 +423,26 @@ class Report:
         pdfkit.from_string(pdf_template, "report.pdf", configuration=config, options={"enable-local-file-access": None})
 
 class Vacancy:
+    """
+        Класс для описания вакансии
+
+        Atributes:
+            name(str) : Название професии
+            salary(int) : Зарплата
+            area_name(str) : Название региона
+            published_at(str) : Дата публикации
+            salary_to(float) : Верхняя граница вилки оклада
+            salary_from(float) : Нижняя граница вилки оклада
+    """
+
     def __init__(self, item: dict):
+        """
+        Инициализирует название вакансий, нижнюю границу вилки оклада, нижнюю границу вилки оклада,
+        верхнюю границу вилки оклада, индификатор валюты оклада, название региона, дату публикации вакансии
+
+        Arg:
+            item(dict) : Словарь вакансий
+        """
         self.__name = item["name"]
         self.__salary_from = float(item["salary_from"])
         self.__salary_to = float(item["salary_to"])
@@ -399,6 +499,9 @@ class Vacancy:
         self.__published_at = published_at
 
 def get_statistic():
+    """
+        Метод возразщает статистику в pdf, excel и png форматах
+    """
     file_name = input("Введите название файла: ")
     profession_name = input("Введите название профессии: ")
     data = DataSet(file_name).vacancies_objects

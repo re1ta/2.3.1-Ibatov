@@ -3,23 +3,69 @@ import re
 from datetime import datetime
 
 class Vacancy:
+    """
+        Класс инициализирует название, зарплату, название региона, дату публикции вакансий
+        Attributes
+        ----------
+        name(str) : Название вакансии
+        salary(str) : Зарплата вакансии
+        area_name(str) : Название региона вакансии
+        published_at(str) : Дата публикции вакансии
+    """
     def __init__(self, name, salary, area_name, published_at):
+        """
+            Метод инициализирует название, зарплату, название региона, дату публикции вакансий
+            Arg:
+                name(str) : Название вакансии
+                salary(str) : Зарплата вакансии
+                area_name(str) : Название региона вакансии
+                published_at(str) : Дата публикции вакансии
+        """
         self.name = name
         self.salary = salary
         self.area_name = area_name
         self.published_at = published_at
 
 class Salary:
+    """
+        Класс инициализирует нижнюю, верхнюю границу вилки оклада и валюту,
+        а также переводит иностранную валюту в рубли
+        Attributes
+        ----------
+        salary_from (str) : Нижняя граница вилки оклада
+        salary_to(str) : Верхняя граница вилки оклада
+        salary_currency(str) : Валюта
+    """
     def __init__(self, salary_from, salary_to, salary_currency):
+        """
+            Метод инициализирует нижнюю, верхнюю границу вилки оклада и валюту
+            Arg:
+                salary_from (str) : Нижняя граница вилки оклада
+                salary_to(str) : Верхняя граница вилки оклада
+                salary_currency(str) : Валюта
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
 
     def get_salary_in_rub(self):
+        """
+            Метод переводит иностранную валюту в рубли
+        """
         return ((int(float(self.salary_from)) + int(float(self.salary_to))) / 2) * currency_to_rub[self.salary_currency]
 
 class InputConect:
+    """
+        Класс ввода и вывода
+        Attributes
+        ----------
+        file_name (str) : Название файла
+        vac_name (str) : Название профессии
+    """
     def make(self):
+        """
+            Метод ввода файла и профессии
+        """
         file_name = input('Введите название файла: ')
         vac_name = input('Введите название профессии: ')
         data_set = DataSet(file_name)
@@ -27,6 +73,12 @@ class InputConect:
 
     @staticmethod
     def printing_data_for_table(dataset, vac_name):
+        """
+            Метод образует данные в таблицу и выводит их
+            Arg:
+                dataset (list) : Массив вакансий
+                vac_name (str) : Название профессии
+        """
         dic_vacancies = dataset.vacancies_objects
         years = set()
         for vacancie in dic_vacancies:
@@ -72,16 +124,38 @@ class InputConect:
         print("Доля вакансий по городам (в порядке убывания): " + str(area_count_dic))
 
 class DataSet:
+    """
+        Класс обработки чтения и обработки csv-файла
+        Attributes
+        ----------
+        file_name (str) : Название файла
+        vacancies_objects (list) : Массив вакансий
+    """
     def __init__(self, file_name):
+        """
+            Метод инициализирует назвние файла и массив вакансий
+            Arg:
+                file_name(str) : Название файла
+        """
         self.file_name = file_name
         self.vacancies_objects = DataSet.parser_csv(file_name)
 
     @staticmethod
     def clear_str(str_value):
+        """
+            Метод чистит текст от html-тегов
+            Arg:
+                str_value(str) : текст в ичейках массива вакансий
+        """
         return ' '.join(re.sub(r"<[^>]+>", '', str_value).split())
 
     @staticmethod
     def csv_reader(file_name):
+        """
+            Метод читает csv-файл
+            Arg:
+                file_name(str) : Название файла
+        """
         file = open(file_name, encoding='utf_8_sig')
         reader = [row for row in csv.reader(file)]
         try:
@@ -93,6 +167,11 @@ class DataSet:
 
     @staticmethod
     def parser_csv(file_name):
+        """
+            Метод парсит csv-файл
+            Arg:
+                file_name(str) : Название файла
+        """
         naming, reader = DataSet.csv_reader(file_name)
         dic_vacancies = []
         filtered_vacancies = [x for x in reader if len(x) == len(naming) and '' not in x]
@@ -108,7 +187,9 @@ class DataSet:
                 Vacancy(dic['name'], Salary(dic['salary_from'], dic['salary_to'], dic['salary_currency']),
                         dic['area_name'], dic['published_at']))
         return dic_vacancies
-
+"""
+    Словарь перевода имён параметров вакансий
+"""
 dic_naming = {
     'name': 'Название',
     'description': 'Описание',
@@ -123,12 +204,18 @@ dic_naming = {
     'area_name': 'Название региона',
     'published_at': 'Дата публикации вакансии'
 }
+"""
+    Словарь перевода опыта работы
+"""
 experience = {
     "noExperience": "Нет опыта",
     "between1And3": "От 1 года до 3 лет",
     "between3And6": "От 3 до 6 лет",
     "moreThan6": "Более 6 лет"
 }
+"""
+    Словарь перевода валюты оклады
+"""
 currency = {
     "AZN": "Манаты",
     "BYR": "Белорусские рубли",
@@ -141,6 +228,9 @@ currency = {
     "USD": "Доллары",
     "UZS": "Узбекский сум",
 }
+"""
+    Словарь перевода иностранной валюты к рублю
+"""
 currency_to_rub = {
     "AZN": 35.68,
     "BYR": 23.91,
@@ -153,12 +243,18 @@ currency_to_rub = {
     "USD": 60.66,
     "UZS": 0.0055,
 }
+"""
+    Словарь перевода текстового опыта работы к числам
+"""
 experience_convert = {
     "noExperience": 0,
     "between1And3": 1,
     "between3And6": 2,
     "moreThan6": 3
 }
+"""
+    Словарь перевода для "Да" и "Нет"
+"""
 true_false = {
     'False': 'Нет',
     'True': 'Да'
@@ -166,6 +262,11 @@ true_false = {
 
 
 def reverse_dic(dic):
+    """
+        Метод переворачивает словарь вакансий
+        Arg:
+            dic(dict) : Словарь вакансий
+    """
     return {value: key for key, value in dic.items()}
 
 
@@ -176,5 +277,8 @@ true_false_reverse = reverse_dic(true_false)
 
 
 def get_table():
+    """
+        Метод выводит статистику в таблицу
+    """
     a = InputConect()
     a.make()
